@@ -208,8 +208,8 @@ class Recursive_Shortcode
 	{
 		if (self::$_default_shortcode_params === null) {
 			self::$_default_shortcode_params = array(
-				'brace_open' => '\[',
-				'brace_close' => '\]',
+				'open' => '\[',
+				'close' => '\]',
 				'deconstruct' => false,
 			);
 		}

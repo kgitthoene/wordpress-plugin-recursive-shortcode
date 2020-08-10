@@ -40,7 +40,7 @@ class Recursive_Shortcode_Parser
 	 * @access  private
 	 * @since   1.0.0
 	 */
-	private static $_enable_debugging = false; //phpcs:ignore
+	private static $_enable_debugging = true; //phpcs:ignore
 
 	/* ---------------------------------------------------------------------
 	 * Add log function.
@@ -87,10 +87,10 @@ class Recursive_Shortcode_Parser
 	 */
 	private static function _get_shortcode_tag($shortcode_content)
 	{
-		if (preg_match('|\s*/\s*(\S+)|', $shortcode_content, $matches)) {
+		if (preg_match('|^\s*/\s*(\S+)|', $shortcode_content, $matches)) {
 			return array(false, $matches[1]);
 		}
-		if (preg_match('/\s*(\S+)/', $shortcode_content, $matches)) {
+		if (preg_match('/^\s*(\S+)/', $shortcode_content, $matches)) {
 			return array(true, $matches[1]);
 		}
 		return NULL;
@@ -105,11 +105,11 @@ class Recursive_Shortcode_Parser
 	 */
 	public static function parse($atts, $content, &$evaluate_stack = NULL)
 	{
-		$pattern = '/(' . $atts['brace_open'] . ')(.*?)(' . $atts['brace_close'] . ')/';
-		$pattern_open = '/(' . $atts['brace_open'] . ')/';
-		$pattern_close = '/(' . $atts['brace_close'] . ')/';
+		$pattern_open = '/(' . $atts['open'] . ')/';
+		$pattern_close = '/(' . $atts['close'] . ')/';
 		self::_write_log("CONTENT='" . $content . "'");
-		self::_write_log("PATTERN='" . $pattern . "'");
+		self::_write_log("OPEN='" . $pattern_open . "'");
+    self::_write_log("CLOSE='" . $pattern_close . "'");
 		//
 		//----------
 		// Check syntax for tags.
@@ -147,7 +147,9 @@ class Recursive_Shortcode_Parser
 					'open' => $tag_open
 				));
 				self::_write_log('POS_CLOSE=' . $pos_close);
-				self::_write_log('SUB_SHORTCODE=' . $shortcode_complete);
+				self::_write_log('SHORTCODE=' . $shortcode_complete);
+				self::_write_log('CONTENT=' . $shortcode_content);
+        self::_write_log('TAG=' . $tag_name. ' OPEN='.($tag_open ? 'yes' : 'no'));
 			} else {
 				return self::_error("Cannot find closing brace for shortcode!", $match, $pos, $content);
 			}
@@ -167,12 +169,12 @@ class Recursive_Shortcode_Parser
 		$last_open_index = $index;
 		//
 		if ($last_open_index >= 0) {
+      self::_write_log('LAST-OPEN-INDEX=' . $last_open_index);
 			$pos = $a_pos[$last_open_index]['position'];
 			$shortcode_complete = $a_pos[$last_open_index]['shortcode'];
 			$shortcode_content = $a_pos[$last_open_index]['content'];
 			$tag_name = $a_pos[$last_open_index]['tag'];
 			$tag_open = $a_pos[$last_open_index]['open'];
-			self::_write_log('TAG=' . $tag_name . ' OPEN=' . ($tag_open ? 'yes' : 'no'));
 			//
 			//----------
 			// Check if we have a closing tag.
@@ -197,17 +199,20 @@ class Recursive_Shortcode_Parser
 				$content_before = ($pos == 0 ? '' : substr($content, 0, $pos));
 				$content_after = substr($content, $pos + strlen($shortcode_complete));
 				// Evaluate shortcode.
-				self::_write_log('HAS-NO-CLOSING:EVAL[' . $last_open_index . '] ->|' . $content_before . '|' . $shortcode_complete . '|' . $content_after . '|');
+        $to_eval = $shortcode_complete;
+        $to_eval = preg_replace($pattern_open, '[', $to_eval);
+        $to_eval = preg_replace($pattern_close, ']', $to_eval);
+				self::_write_log('HAS-NO-CLOSING:EVAL[' . $last_open_index . '] ->|' . $content_before . '|' . $to_eval . '|' . $content_after . '|');
 				if (function_exists('do_shortcode')) {
 					if ($atts['deconstruct']) {
 						$eval = str_repeat(" ", strlen($shortcode_complete));
 					} else {
-						$eval = do_shortcode($shortcode_complete);
+						$eval = do_shortcode($to_eval);
 					}
 				} else {
-					$eval = 'EVALUATED';
+					$eval = '';
 				}
-				if ($shortcode_complete == $eval) {
+				if ($to_eval == $eval) {
 					return self::_error("Unknown shortcode!", $shortcode_complete, $pos, $content);
 				}
 				if ($atts['deconstruct']) {
@@ -234,17 +239,20 @@ class Recursive_Shortcode_Parser
 				$content_before = ($pos == 0 ? '' : substr($content, 0, $pos));
 				$content_after = substr($content, $pos + strlen($shortcode_complete));
 				// Evaluate shortcode.
-				self::_write_log('HAS-CLOSING:EVAL[' . $last_open_index . '] ->|' . $content_before . '|' . $shortcode_complete . '|' . $content_after . '|');
+        $to_eval = $shortcode_complete;
+        $to_eval = preg_replace($pattern_open, '[', $to_eval);
+        $to_eval = preg_replace($pattern_close, ']', $to_eval);
+				self::_write_log('HAS-CLOSING:EVAL[' . $last_open_index . '] ->|' . $content_before . '|' . $to_eval . '|' . $content_after . '|');
 				if (function_exists('do_shortcode')) {
 					if ($atts['deconstruct']) {
 						$eval = str_repeat(" ", strlen($shortcode_complete));
 					} else {
-						$eval = do_shortcode($shortcode_complete);
+						$eval = do_shortcode($to_eval);
 					}
 				} else {
-					$eval = 'EVALUATED';
+					$eval = '';
 				}
-				if ($shortcode_complete == $eval) {
+				if ($to_eval == $eval) {
 					return self::_error("Unknown shortcode!", $shortcode_complete, $pos, $content);
 				}
 				if ($atts['deconstruct']) {
