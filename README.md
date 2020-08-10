@@ -3,7 +3,7 @@
 ## About
 
 The **Recursive Shortcode** plugin provides the `[recursive-shortcode]` shortcode for
-[Wordpress](https://wordpress.org/) use shortcodes in shortcodes.
+[Wordpress](https://wordpress.org/) to use shortcodes in shortcodes.
 
 ## Installation
 
