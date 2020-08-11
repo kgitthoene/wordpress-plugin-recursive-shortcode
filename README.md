@@ -111,9 +111,14 @@ We have a inner shortcode `B` and an outer, enclosing, shortcode `A`. Correct, b
 
 `[recursive-shortcode]`interprets it in this way: ![inner-A](manual/pictures/deconstruct-sample-output-pifalls-2.png) The `"][/A]` at the end will be displayed as normal text.
 
-However, use `deconstruct=true` to get the picture of the evaluation hierarchy from this shortcut. Alter the regular expressions for opening and closing braces to use `[` and `]` literally.
+### Clues
+
+1. Use `deconstruct=true` to get the picture of the evaluation hierarchy from this shortcut.
+
+2. Alter the regular expressions for opening and closing braces to use `[` and `]` literally.
 
 Example - Altered braces: `[recursive-shortcode open="@OPEN" close="@CLOSE"]@OPENA@CLOSE@OPENB param="[/A]"@CLOSE@OPEN/A@CLOSE[/recursive-shortcode]`
 
 Is interpreted as: ![inner-A](manual/pictures/deconstruct-sample-output-pifalls-3.png)
 
+Before `do_schortcode()` is called, custom braches are replaced with standard shortcode braces.

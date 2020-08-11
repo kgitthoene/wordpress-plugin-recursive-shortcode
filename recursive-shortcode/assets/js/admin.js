@@ -1,7 +1,7 @@
 /**
- * Plugin Template admin js.
+ * Plugin Recursive Shortcode admin js.
  *
- *  @package WordPress Plugin Template/JS
+ *  @package WordPress Plugin Recursive Shortcode
  */
 
 jQuery( document ).ready(

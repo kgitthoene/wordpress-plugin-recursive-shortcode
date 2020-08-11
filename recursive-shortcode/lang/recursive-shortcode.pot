@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Recursive Shortcode 1.0\n"
-"Report-Msgid-Bugs-To: http://wordpress.org/tag/WordPress-Plugin-Template\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/WordPress-Plugin-Recursive Shortcode\n"
 "POT-Creation-Date: 2014-04-07 11:28:06+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

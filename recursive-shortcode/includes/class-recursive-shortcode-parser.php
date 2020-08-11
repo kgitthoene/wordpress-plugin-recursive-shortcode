@@ -1,4 +1,9 @@
 <?php
+
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 /*
 Copyright (c) 2020 Kai Thoene
 
@@ -24,7 +29,7 @@ SOFTWARE.
 /**
  * Parser plugin class file.
  *
- * @package WordPress Plugin Template/Includes
+ * @package WordPress Plugin Recursive Shortcode/Includes
  */
 
 

@@ -1,7 +1,7 @@
 /**
- * Plugin Template js settings.
+ * Plugin Recursive Shortcode js settings.
  *
- *  @package WordPress Plugin Template/Settings
+ *  @package WordPress Plugin Recursive Shortcode/Settings
  */
 
 jQuery( document ).ready(

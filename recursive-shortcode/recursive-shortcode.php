@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Recursive Shortcode
  * Version: 1.0.0
- * Plugin URI: https://github.com/kgitthoene/
+ * Plugin URI: https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode
  * Description: Write shortcuts using other shortcodes.
  * Author: Kai Thoene
  * Author URI: https://github.com/kgitthoene/
@@ -48,7 +48,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load plugin class files.
 require_once 'includes/class-recursive-shortcode.php';
 require_once 'includes/class-recursive-shortcode-parser.php';
+/*
+TODO Add settings, if useful.
 require_once 'includes/class-recursive-shortcode-settings.php';
+*/
 
 // Load plugin libraries.
 require_once 'includes/lib/class-recursive-shortcode-admin-api.php';
@@ -63,9 +66,12 @@ require_once 'includes/lib/class-recursive-shortcode-taxonomy.php';
  */
 function recursive_shortcode() {
 	$instance = Recursive_Shortcode::instance( __FILE__, '1.0.0' );
+	/*
+	TODO Add settings, if useful.
 	if ( is_null( $instance->settings ) ) {
 		$instance->settings = Recursive_Shortcode_Settings::instance( $instance );
 	}
+	*/
 	return $instance;
 }  // recursive_shortcode
 
