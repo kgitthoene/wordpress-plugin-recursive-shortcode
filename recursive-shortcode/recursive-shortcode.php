@@ -12,7 +12,7 @@
  * Tested up to: 4.0
  *
  * Text Domain: recursive-shortcode
- * Domain Path: /lang/
+ * Domain Path: /languages/
  *
  * @package WordPress
  * @author Kai Thoene
