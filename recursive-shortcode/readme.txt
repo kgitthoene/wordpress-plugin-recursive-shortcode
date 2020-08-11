@@ -70,16 +70,6 @@ No upgrade. No payments. It's FOSS.
 <a href="https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/issues" target="_blank">Open an issue on the project page.</a>
 
 
-== Screenshots ==
-
-1. Create content for your website or blog in minutes.
-2. Add content from anywhere on the web - articles, videos, PDFs, products, etc. 
-3. Choose beautiful responsive layouts with a single click - no coding required.
-4. Choose from various font styles and color options to match your website.
-5. Manage and edit all your posts in one place.
-6. Track engagement analytics on your posts in real-time.
-
-
 == Further Information ==
 
 <a href="https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/blob/master/README.md" tagret="_blank">Please read the README.md of this project.</a>
