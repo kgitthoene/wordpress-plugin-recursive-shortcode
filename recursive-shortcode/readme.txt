@@ -17,4 +17,4 @@ Wordpress to use shortcodes in shortcodes.
 
 == Further Information ==
 
-Please read the README.md of this project.
+Please read the README.md of this project: https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/blob/master/README.md
