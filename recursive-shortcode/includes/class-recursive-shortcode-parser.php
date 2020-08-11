@@ -45,7 +45,7 @@ class Recursive_Shortcode_Parser
 	 * @access  private
 	 * @since   1.0.0
 	 */
-	private static $_enable_debugging = true; //phpcs:ignore
+	private static $_enable_debugging = false; //phpcs:ignore
 
 	/* ---------------------------------------------------------------------
 	 * Add log function.
