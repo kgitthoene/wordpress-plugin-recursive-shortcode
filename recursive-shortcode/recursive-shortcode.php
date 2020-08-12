@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Recursive Shortcode
- * Version: 1.0.0
+ * Version: 1.0.1
  * Plugin URI: https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode
  * Description: Write shortcuts using other shortcodes.
  * Author: Kai Thoene

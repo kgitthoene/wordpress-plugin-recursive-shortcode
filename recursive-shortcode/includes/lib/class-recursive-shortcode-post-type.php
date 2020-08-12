@@ -179,7 +179,7 @@ class Recursive_Shortcode_Post_Type {
 			2  => __( 'Custom field updated.', 'recursive-shortcode' ),
 			3  => __( 'Custom field deleted.', 'recursive-shortcode' ),
 			4  => sprintf( __( '%1$s updated.', 'recursive-shortcode' ), $this->single ),
-			5  => isset( $_GET['revision'] ) ? sprintf( __( '%1$s restored to revision from %2$s.', 'recursive-shortcode' ), $this->single, wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+			5  => isset( $_GET['revision'] ) and sanitize_text_field(wp_unslash($_GET['revision'])) ? sprintf( __( '%1$s restored to revision from %2$s.', 'recursive-shortcode' ), $this->single, wp_post_revision_title( (int) sanitize_text_field(wp_unslash($_GET['revision'])), false ) ) : false,
 			6  => sprintf( __( '%1$s published. %2$sView %3$s%4s.', 'recursive-shortcode' ), $this->single, '<a href="' . esc_url( get_permalink( $post_ID ) ) . '">', $this->single, '</a>' ),
 			7  => sprintf( __( '%1$s saved.', 'recursive-shortcode' ), $this->single ),
 			8  => sprintf( __( '%1$s submitted. %2$sPreview post%3$s%4$s.', 'recursive-shortcode' ), $this->single, '<a target="_blank" href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) . '">', $this->single, '</a>' ),

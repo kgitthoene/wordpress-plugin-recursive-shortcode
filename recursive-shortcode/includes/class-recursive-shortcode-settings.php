@@ -363,11 +363,11 @@ class Recursive_Shortcode_Settings
 			// Check posted/selected tab.
 			//phpcs:disable
 			$current_section = '';
-			if (isset($_POST['tab']) && $_POST['tab']) {
-				$current_section = $_POST['tab'];
+			if (isset($_POST['tab']) && sanitize_text_field(wp_unslash($_POST['tab']))) {
+				$current_section = sanitize_text_field(wp_unslash($_POST['tab']));
 			} else {
-				if (isset($_GET['tab']) && $_GET['tab']) {
-					$current_section = $_GET['tab'];
+				if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab']))) {
+					$current_section = sanitize_text_field(wp_unslash($_GET['tab']));
 				}
 			}
 			//phpcs:enable
@@ -433,15 +433,14 @@ class Recursive_Shortcode_Settings
 	 */
 	public function settings_page()
 	{
-
 		// Build page HTML.
 		$html      = '<div class="wrap" id="' . $this->parent->_token . '_settings">' . "\n";
 		$html .= '<h2>' . __('Plugin Settings', 'recursive-shortcode') . '</h2>' . "\n";
 
 		$tab = '';
 		//phpcs:disable
-		if (isset($_GET['tab']) && $_GET['tab']) {
-			$tab .= $_GET['tab'];
+		if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab']))) {
+			$tab .= sanitize_text_field(wp_unslash($_GET['tab']));
 		}
 		//phpcs:enable
 
@@ -460,7 +459,7 @@ class Recursive_Shortcode_Settings
 						$class .= ' nav-tab-active';
 					}
 				} else {
-					if (isset($_GET['tab']) && $section == $_GET['tab']) { //phpcs:ignore
+					if (isset($_GET['tab']) && $section == sanitize_text_field(wp_unslash($_GET['tab']))) { //phpcs:ignore
 						$class .= ' nav-tab-active';
 					}
 				}
