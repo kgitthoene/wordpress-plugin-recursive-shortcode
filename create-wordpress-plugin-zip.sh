@@ -258,6 +258,7 @@ FN="${DISTDIR}.zip"
 # Check existence of distribution directory.
 [ -d "$DISTDIR" ] || { error "Cannot find distribution directory! DISDIR='`pwd`/$DISTDIR'"; exit 1; }
 # Create ZIP file.
+rm -f "$FN"
 ( cd "$DISTDIR"; git ls-files | zip "../$FN" -@ ) && { info "ZIP file ready. FILE='$FN'"; exit 0; }
 error "Cannot create ZIP file!"
 exit 1

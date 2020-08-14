@@ -12,14 +12,28 @@ Allows to use shortcodes that include shortcodes, and so on.
 
 == Description ==
 
-The Recursive Shortcode plugin provides the [recursive-shortcode] shortcode for
-Wordpress to use shortcodes in shortcodes (nested shortcodes).
+The Recursive Shortcode plugin provides the `[recursive-shortcode]` shortcode for Wordpress to use shortcodes in shortcodes (nested shortcodes).
 
 
 == Documentation ==
 
-<a href="https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/blob/master/README.md" tagret="_blank">The documentation, examples and clues can be found on the project page.</a>
+Just write: `[recursive-shortcode]CONTENT[/recursive-shortcode]`
 
+The `CONTENT` is read by the parser, found shortcodes are properly executed.
+
+[The documentation, more examples and clues can be found on the project page.](https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/blob/master/README.md#usage)
+
+=== Example ===
+
+(From the banner. See above.)
+
+`[recursive-shortcode][icon name="[urlparam param="icon"]"][/recursive-shortcode]`
+
+First the inner shortcode (urlparam) is evaluated. The result inserted as parameter for the icon-shortcode. `urlparam` is from plugin [URL Params](https://wordpress.org/plugins/url-params/). `icon` is from plugin [Better Font Awesome](https://wordpress.org/plugins/better-font-awesome/).
+
+If you open: https://yourlocation.lan/page-with-recursive-shortcode?icon=file-pdf
+
+You'll get the icon `file-pdf`.
 
 == Installation ==
 
@@ -38,7 +52,7 @@ Wordpress to use shortcodes in shortcodes (nested shortcodes).
 
 == Issues ==
 
-<a href="https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/issues" target="_blank">Post your issues on the project page.</a>
+[Post your issues on the project page.](https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/issues)
 
 
 == Frequently Asked Questions ==
@@ -49,13 +63,12 @@ It allows you to use nested schortcodes in shortcodes in a propper way.
 
 = What is this plugin? =
 
-Basically a parser for nested shortcodes.
-With an analysing tool to understand the internal evaluation hierarchy.
+Basically a parser for nested shortcodes. With an analysing tool to understand the internal evaluation hierarchy.
 
 = Who should use it? =
 
 Everyone who wants the output of a shortcode as content or parameter of another shortcode.
-Simple example: Inject the output from Plugin **URL Params** into **Display Posts – Easy lists, grids, navigation, and more**.
+Simple example: Inject the output from Plugin [URL Params](https://wordpress.org/plugins/url-params/) into [Display Posts](https://wordpress.org/plugins/display-posts-shortcode/).
 
 = Do I need to have coding skills to use this plugin? =
 
@@ -67,12 +80,18 @@ No upgrade. No payments. It's FOSS.
 
 = My question is not listed. =
 
-<a href="https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/issues" target="_blank">Open an issue on the project page.</a>
+[Open an issue on the project page.](https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/issues)
 
 
 == Further Information ==
 
-<a href="https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/blob/master/README.md" tagret="_blank">Please read the README.md of this project.</a>
+[Please read the README.md of this project.](https://github.com/kgitthoene/wordpress-plugin-recursive-shortcode/blob/master/README.md)
+
+
+== Screenshots ==
+
+1. Single nested, shortcode.
+2. Double nested, shortcode.
 
 
 == Changelog ==
@@ -82,3 +101,9 @@ No upgrade. No payments. It's FOSS.
 
 = 1.0.0 (2020-08-10) =
 - Initial release
+
+
+== Upgrade Notice ==
+
+= 1.0.1 (2020-08-12) =
+- Sanitize fields
