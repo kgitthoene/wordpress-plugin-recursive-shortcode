@@ -5,6 +5,8 @@
 The **Recursive Shortcode** plugin provides the `[recursive-shortcode]` shortcode for
 [Wordpress](https://wordpress.org/) to use shortcodes in shortcodes.
 
+The plugin can also be found on the [Wordpress Plugin Pages](https://wordpress.org/plugins/recursive-shortcode/).
+
 ## Installation
 
 ### From within dashboard (recommended)
