@@ -55,7 +55,7 @@ class Recursive_Shortcode
 
 	/**
 	 * Default shortcode parameters.
-	 * 
+	 *
 	 * @var     object
 	 * @access  private
 	 * @since   1.0.0
@@ -156,12 +156,15 @@ class Recursive_Shortcode
 	private static function _write_log($log = NULL)
 	{
 		if (self::$_enable_debugging) {
-			$bn = basename(__FILE__);
-			$msg = '[' . $bn . ':' . __LINE__ . '] ' . ((is_array($log) || is_object($log)) ? print_r($log, true) : $log);
+			$db_bt = debug_backtrace(1);
+			$file = $db_bt[0]['file'];
+			$line = $db_bt[0]['line'];
+			$bn = basename($file);
+			$msg = '[' . $bn . ':' . $line . '] ' . ((is_array($log) || is_object($log)) ? print_r($log, true) : $log);
 			error_log($msg);
-			if (defined('STDERR')) {
-				fwrite(STDERR, $msg . PHP_EOL);
-			}
+			#if (defined('STDERR')) {
+			#	fwrite(STDERR, $msg . PHP_EOL);
+			#}
 		}
 	}  // self::_write_log
 
@@ -171,7 +174,7 @@ class Recursive_Shortcode
 	 * @param string $file File constructor.
 	 * @param string $version Plugin version.
 	 */
-	public function __construct($file = '', $version = '1.0.0')
+	public function __construct($file = '', $version = '1.0.2')
 	{
 		$this->_version = $version;
 		$this->_token   = 'recursive_shortcode';
@@ -215,6 +218,9 @@ class Recursive_Shortcode
 			self::$_default_shortcode_params = array(
 				'open' => '\[',
 				'close' => '\]',
+				'finisher' => '\/',
+				'escaped-open' => '\[\[',
+				'escaped-close' => '\]\]',
 				'deconstruct' => false,
 			);
 		}
@@ -418,10 +424,10 @@ class Recursive_Shortcode
 	} // _log_version_number
 
 	/**
-	 * Log the plugin version number.
+	 * Main entry function.
 	 *
 	 * @access  public
-	 * @return  String
+	 * @return  string
 	 * @since   1.0.0
 	 */
 	public static function recursive_shortcode_func($atts, $content)
@@ -430,81 +436,8 @@ class Recursive_Shortcode
 			$atts = shortcode_atts(self::default_shortcode_params(), $atts);
 		}
 		$atts['deconstruct'] = (strtolower($atts['deconstruct']) == 'true');
-		$evaluate_stack = ($atts['deconstruct'] ? array() : NULL);
-		$eval = Recursive_Shortcode_Parser::parse($atts, $content, $evaluate_stack);
-		if ($atts['deconstruct']) {
-			// Calculate inclusion levels.
-			foreach ($evaluate_stack as $i => $position) {
-				array_push($evaluate_stack[$i], -1);
-			}
-			$level = 0;
-			while (true) {
-				$index = -1;
-				// Search for position without level.
-				for ($i = 0; $i < count($evaluate_stack); $i++) {
-					if ($evaluate_stack[$i][2] == -1) {
-						$index = $i;
-						break;
-					}
-				}
-				// Break, if all positions have levels.
-				if ($index == -1) {
-					break;
-				}
-				// Check, if this position is includes by another position.
-				$included = false;
-				for ($i = 0; $i < count($evaluate_stack); $i++) {
-					if ($i != $index) {
-						if (($evaluate_stack[$index][0] >= $evaluate_stack[$i][0]) and ($evaluate_stack[$index][1] <= $evaluate_stack[$i][1])) {
-							if ($evaluate_stack[$index][2] == -1) {
-								$evaluate_stack[$index][2] = 0;
-							}
-							$evaluate_stack[$index][2]++;
-							$included = true;
-						}
-					}
-				}
-				//
-				if (!$included) {
-					$evaluate_stack[$index][2] = 0;
-				}
-			}
-			$max_level = 0;
-			for ($i = 0; $i < count($evaluate_stack); $i++) {
-				$max_level = ($evaluate_stack[$i][2] > $max_level ? $evaluate_stack[$i][2] : $max_level);
-			}
-			self::_write_log("MAX-LEVEL=" . $max_level . " POSITIONS=" . print_r($evaluate_stack, true));
-			//
-			$operations = array();
-			$transparency = 1.0;
-			$font_size = 12;
-			$border_size_pre_level = 3;
-			foreach ($evaluate_stack as $positions) {
-				$color = '';
-				$brightness = 0;
-				foreach (array('r' => 0.299, 'g' => 0.587, 'b' => 0.114) as $c => $br) {
-					$cval = rand(0, 255);
-					$color .= $cval . ',';
-					$brightness += pow($cval, 2) * $br;
-				}
-				$brightness = sqrt($brightness);
-				$text_color = ($brightness < 128 ? ' color:white;' : ' color:black;');
-				$border_size = ($max_level - $positions[2]) * $border_size_pre_level;
-				$border = 'border-top:' . $border_size . 'px solid rgba(' . $color . $transparency . '); border-bottom:' . $border_size . 'px solid rgba(' . $color . $transparency . '); ';
-				array_push($operations, array($positions[0], '<span style="' . $border . 'background:rgba(' . $color . $transparency . ');' . $text_color . '">'));
-				array_push($operations, array($positions[1], '</span>'));
-			}
-			usort($operations, function ($a, $b) {
-				return ($a[0] == $b[0] ? 0 : ($a[0] > $b[0] ? -1 : 1));
-			});
-			foreach ($operations as $operation) {
-				$content = substr_replace($content, $operation[1], $operation[0], 0);
-			}
-			return '<div style="unicode-bidi: embed; font-family: monospace; font-size:' . $font_size . 'px; line-height:' . ($font_size + ($max_level + 1) * (2 * $border_size_pre_level)) . 'px;">' . $content . '</div>';
-			return '<pre>' . $content . '</pre>';
-		} else {
-			return $eval;
-		}
+		self::_write_log('[IN] CONTEXT=\'' . $content . '\"');
+		return Recursive_Shortcode_Parser::parse($atts, $content);
 	} // recursive_shortcode_func
 
 }  // class Recursive_Shortcode
