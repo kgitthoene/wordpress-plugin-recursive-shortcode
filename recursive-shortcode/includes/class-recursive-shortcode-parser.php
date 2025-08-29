@@ -33,12 +33,12 @@ SOFTWARE.
  */
 
 abstract class Recursive_Shortcode_Parser_Token_State {
-	public const UNDEFINED = 'UNDEFINED'; // 'Undefined state, i.e. not initialized.';
-	public const FIN = 'FIN';  // 'Finalized, self containing.';
-	public const CLOSE = 'CLOSE';  // 'Closing tag.';
-	public const OPEN = 'OPEN';  // 'Open tag.';
-	public const CLOSURE = 'CLOSURE';  // 'Tagged with open term and closing term.';
-	public const SOLO = 'SOLO';  // 'Without closing term.';
+	public const UNDEFINED = 'UNDEFINED'; 	// 'Undefined state, i.e. not initialized.';
+	public const FIN = 'FIN';  							// 'Finalized, self containing.';
+	public const CLOSE = 'CLOSE';  					// 'Closing tag.';
+	public const OPEN = 'OPEN';  						// 'Open tag.';
+	public const CLOSURE = 'CLOSURE';  			// 'Tagged with open term and closing term.';
+	public const SOLO = 'SOLO';  						// 'Without closing term/tag.';
 }
 
 /**
@@ -186,20 +186,40 @@ class Recursive_Shortcode_Parser {
 	/**
 	 * The debug trigger.
 	 *
-	 * @var     object
+	 * @var     bool
 	 * @access  private
 	 * @since   1.0.0
 	 */
-	private static $_enable_debugging = false; //phpcs:ignore
+	private static bool $_enable_debugging = false; //phpcs:ignore
 	/**
-	 * Unique ID.
+	 * Unique ID, i.e. an up counting number.
+	 * Call self::uniqid() to get such a number.
+	 * @var     int
+	 * @access  private
+	 * @since   1.0.2
 	 */
-	private static $_uniqid = -1;  // -1 means uninitialized.
+	private static int $_uniqid = -1;  // -1 means uninitialized.
 
 	/* ---------------------------------------------------------------------
-	 * Add log function.
+	 * Set debug flag.
+	 *
+	 * @access  private
+	 * @return  bool
+	 * @since   1.0.2
 	 */
-	private static function _write_log($log = NULL) {
+	public static function setDebug(?bool $debug = false) {
+		self::$_enable_debugging = $debug;
+		return self::$_enable_debugging;
+	}  // function setDebug
+
+	/* ---------------------------------------------------------------------
+	 * Logging function.
+	 *
+	 * @access  private
+	 * @return  null
+	 * @since   1.0.0
+	 */
+	private static function _write_log($log = null) {
 		if (self::$_enable_debugging) {
 			$db_bt = debug_backtrace(1);
 			$file = $db_bt[0]['file'];
@@ -211,82 +231,61 @@ class Recursive_Shortcode_Parser {
 			#	fwrite(STDERR, $msg . PHP_EOL);
 			#}
 		}
-	}  // self::_write_log
+		return null;
+	}  // function _write_log
 
 	/**
-	 * Render an error message as output (HTML).
+	 * Render an error message as HTML.
 	 *
 	 * @access  private
-	 * @return  string HTML output.
+	 * @return  string
 	 * @since   1.0.0
 	 */
-	private static function _error($msg, $sc = NULL, $sc_pos = NULL, $content = NULL) {
-		if ($sc != NULL and $sc_pos != NULL and $content != NULL) {
+	private static function _error($msg, $sc = null, $sc_pos = null, $content = null) {
+		if ($sc != null and $sc_pos != null and $content != null) {
 			$cn = mb_substr($content, 0, $sc_pos) . '<span style="background-color:#AA000F; color:white;">' . mb_substr($content, $sc_pos, mb_strlen($sc)) . '</span>' . mb_substr($content, $sc_pos + mb_strlen($sc));
 		} else {
-			$cn = NULL;
+			$cn = null;
 		}
 		return
 			'<div style="unicode-bidi: embed; font-family: monospace; font-size:12px; color:black; background-color:#E0E0E0;">' .
-			'[recursive-shortcode]:ERROR -- ' . $msg . ($sc_pos === NULL ? '' : ' POSITION=' . $sc_pos) . ($sc === NULL ? '' : sprintf(" SHORTCODE='%s'", $sc)) . "\n" .
-			($cn === NULL ? '' : sprintf("CONTENT='%s'", $cn)) .
+			'[recursive-shortcode]:ERROR -- ' . $msg . ($sc_pos === null ? '' : ' POSITION=' . $sc_pos) . ($sc === null ? '' : sprintf(" SHORTCODE='%s'", $sc)) . "\n" .
+			($cn === null ? '' : sprintf("CONTENT='%s'", $cn)) .
 			'</div>';
-	}  // _error
+	}  // function _error
 
 	/**
-	 * Get name and state (OPEN, CLOSE) of a shortcode from shortcode content.
+	 * Get a up counting number.
 	 *
-	 * @access  private
-	 * @return  array With elements 0 => (true, false) - Is OPEN tag. 1 => string Tag name.
-	 * @since   1.0.0
+	 * @access  public
+	 * @return  int
+	 * @since   1.0.2
 	 */
-	private static function _get_shortcode_tag($shortcode_content) {
-		if (preg_match('|^\s*/\s*(\S+)|', $shortcode_content, $matches)) {
-			return array(false, $matches[1]);
-		}
-		if (preg_match('/^\s*(\S+)/', $shortcode_content, $matches)) {
-			return array(true, $matches[1]);
-		}
-		return [];
-	}  // _get_shortcode_tag
-
 	public static function uniqid() {
 		self::$_uniqid++;
 		return self::$_uniqid;
 	}  // function uniqid
 
 	/**
-	 * Parse strings with shortcodes.
-	 *
-	 * @access  public
-	 * @return  string
-	 * @since   1.0.0
-	 */
-	public static function evaluate_raw_shortcode($content) {
-		self::_write_log("CONTENT='" . $content . "'");
-		return $content;
-	}
-
-	/**
-	 * Parse strings with shortcodes.
+	 * Get name of shortcode from string.
 	 *
 	 * @access  private
 	 * @return  string
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _get_shortcode_name($content) {
 		if (preg_match('/^\s*(\/\s*){0,1}([\w_-]+)(\s|\s*\/|\s*$)/', $content, $matches)) {
 			return $matches[2];
 		}
 		return '';
-	}
+	}  // function _get_shortcode_name
 
 	/**
 	 * Parse strings with shortcodes.
 	 *
 	 * @access  private
 	 * @return  boolean
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _tokenize_matches($atts, $content, &$matches, &$token = [], &$err_msg = '') {
 		$token = [];
@@ -323,19 +322,13 @@ class Recursive_Shortcode_Parser {
 					//
 					if (preg_match($pattern_finisher_included, $inner_content)) {
 						// Found self finished shortcode. E.g. '[happy /]'.
-						#array_push($token, [$inner_content, $start_pos, $tag_pos, 'FIN', $shortcode_name]);
 						array_push($token, new Recursive_Shortcode_Parser_Token($shortcode_name, $outer_content, $inner_content, $start_pos, $tag_pos, Recursive_Shortcode_Parser_Token_State::FIN));
-						#self::_write_log("TOK: FINISHED SHORTCODE: '" . $inner_content . "' " . $start_pos . ", " . $tag_pos . " -- FIN");
 						self::_write_log("TOK: FINISHED SHORTCODE: '" . strval(end($token)));
 					} elseif (preg_match($pattern_start_with_finisher, $inner_content)) {
-						#array_push($token, [$inner_content, $start_pos, $tag_pos, 'CLOSE', $shortcode_name]);
 						array_push($token, new Recursive_Shortcode_Parser_Token($shortcode_name, $outer_content, $inner_content, $start_pos, $tag_pos, Recursive_Shortcode_Parser_Token_State::CLOSE));
-						#self::_write_log("TOK: FINISHER SHORTCODE: '" . $inner_content . "' " . $start_pos . ", " . $tag_pos . " -- CLOSE");
 						self::_write_log("TOK: FINISHED SHORTCODE: '" . strval(end($token)));
 					} else {
-						#array_push($token, [$inner_content, $start_pos, $tag_pos, 'OPEN', $shortcode_name]);
 						array_push($token, new Recursive_Shortcode_Parser_Token($shortcode_name, $outer_content, $inner_content, $start_pos, $tag_pos, Recursive_Shortcode_Parser_Token_State::OPEN));
-						#self::_write_log("TOK: SHORTCODE: '" . $inner_content . "' " . $start_pos . ", " . $tag_pos . " -- OPEN");
 						self::_write_log("TOK: FINISHED SHORTCODE: '" . strval(end($token)));
 					}
 				}
@@ -358,8 +351,6 @@ class Recursive_Shortcode_Parser {
 			$tok = $token[$index];
 			switch ($tok->getState()) {
 				case 'FIN':
-					#$outer_content = mb_substr($content, $tok[1], $tok[2] - $tok[1] + 1);
-					#array_push($paired_token, [$tok[0], $tok[1], $tok[2], 'FIN', $tok[4], $outer_content]);
 					array_push($paired_token, new Recursive_Shortcode_Parser_Token($tok->getName(), $tok->getOuter(), $tok->getInner(), $tok->getAStart(), $tok->getAEnd(), Recursive_Shortcode_Parser_Token_State::FIN));
 					break;
 				case 'OPEN':
@@ -373,7 +364,6 @@ class Recursive_Shortcode_Parser {
 							$start_pos = $tok->getAStart();
 							$end_pos = $token[$index_2nd]->getAend();
 							$outer_content = mb_substr($content, $start_pos, $end_pos - $start_pos + 1);
-							#array_push($paired_token, [$inner_content, $start_pos, $end_pos, 'CLOSURE', $search_shortcode_name, $outer_content]);
 							array_push($paired_token, new Recursive_Shortcode_Parser_Token($search_shortcode_name, $outer_content, $inner_content, $start_pos, $end_pos, Recursive_Shortcode_Parser_Token_State::CLOSURE));
 							break;
 						}
@@ -381,7 +371,6 @@ class Recursive_Shortcode_Parser {
 					}
 					if (!$closure_found) {
 						$outer_content = mb_substr($content, $tok->getAStart(), $tok->getAEnd() - $tok->getAStart() + 1);
-						//array_push($paired_token, [$tok[0], $tok[1], $tok[2], 'SOLO', $search_shortcode_name, $outer_content]);
 						array_push($paired_token, new Recursive_Shortcode_Parser_Token($search_shortcode_name, $outer_content, $tok->getInner(), $tok->getAStart(), $tok->getAEnd(), Recursive_Shortcode_Parser_Token_State::SOLO));
 					}
 					break;
@@ -390,14 +379,14 @@ class Recursive_Shortcode_Parser {
 		}
 		$token = $paired_token;
 		return true;
-	}
+	}  // function _tokenize_matches
 
 	/**
 	 * Parse strings with shortcodes.
 	 *
 	 * @access  private
 	 * @return  boolean
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _find_insides($atts, $content, &$token = [], &$err_msg = '') {
 		foreach ($token as $index => $tok) {
@@ -416,14 +405,14 @@ class Recursive_Shortcode_Parser {
 			}
 		}
 		return true;
-	}
+	}  // function _find_insides
 
 	/**
 	 * Parse strings with shortcodes.
 	 *
 	 * @access  private
 	 * @return  boolean
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _find_includes($atts, $content, &$token = [], &$err_msg = '') {
 		foreach ($token as $index => $tok) {
@@ -433,14 +422,14 @@ class Recursive_Shortcode_Parser {
 			}
 		}
 		return true;
-	}
+	}  // function _find_includes
 
 	/**
 	 * Parse strings with shortcodes.
 	 *
 	 * @access  private
 	 * @return  boolean
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _calculate_level_of_include($atts, $content, &$token = [], &$max_level = 0, &$err_msg = '') {
 		$max_level = 0;
@@ -459,8 +448,15 @@ class Recursive_Shortcode_Parser {
 			}
 		}
 		return true;
-	}
+	}  // function _calculate_level_of_include
 
+	/**
+	 * Creates a random string from a given alphabet.
+	 *
+	 * @access  private
+	 * @return  string
+	 * @since   1.0.2
+	 */
 	private static function _random_string($nchar = 8, $alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
 		$result = '';
 		for ($i = 0; $i < $nchar; $i++) {
@@ -470,23 +466,22 @@ class Recursive_Shortcode_Parser {
 	}  // function _random_string
 
 	/**
-	 * Evaluate shortcode to something funny because function do_shortcode() doesn't exists.
+	 * Evaluate shortcode to something random because Wordpress function do_shortcode() doesn't exists.
 	 *
 	 * @access  private
 	 * @return  string
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _do_shortcode($shortcut_text = '', $name = '(unknown)') {
 		return sprintf("|%s--%s|", $name, self::_random_string());
-	}
-
+	}  // _do_shortcode
 
 	/**
-	 * Get random RGBA color.
+	 * Get random RGBA color for background and a correspondig text color.
 	 *
 	 * @access  private
 	 * @return  string
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _random_rgba_color(&$text_color = 'black', $transparency = 1.0) {
 		$brightness = 0;
@@ -499,56 +494,50 @@ class Recursive_Shortcode_Parser {
 		$brightness = sqrt($brightness);
 		$text_color = ($brightness < 128 ? 'white' : 'black');
 		return sprintf("rgba(%d, %d, %d, %0.1f)", $colors['r'], $colors['g'], $colors['b'], $transparency);
-	}
+	}  // function _random_rgba_color
 
 	/**
-	 * Evaluate shortcode.
+	 * Create HTML spans with colored shortcode.
 	 *
 	 * @access  private
-	 * @return  string
-	 * @since   1.0.0
+	 * @return  string HTML span
+	 * @since   1.0.2
 	 */
 	private static function _colorfull_shortcut($shortcut_text = '', $name = '(unknown)', $level = 0, $max_level = 0) {
 		$txt_clr = 'black';
 		$rnd_clr = self::_random_rgba_color($txt_clr);
 		return sprintf("<span style=\"color:%s; background-color:%s; border-top:%dpx solid %s; border-bottom:%dpx solid %s; vertical-align:top;\">%s</span>",
 			$txt_clr, $rnd_clr, 0, $rnd_clr, 0, $rnd_clr, $shortcut_text);
-	}
+	}  // function _colorfull_shortcut
 
 	/**
 	 * Evaluate shortcode.
 	 *
 	 * @access  private
 	 * @return  string
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _evaluate_single_shortcut($shortcut_text = '', $name = '(unknown)') {
 		$eval = function_exists('do_shortcode') ? do_shortcode($shortcut_text) : self::_do_shortcode($shortcut_text, $name);
 		return $eval;
-	}
+	}  // function _evaluate_single_shortcut
 
 	/**
-	 * Parse strings with shortcodes.
+	 * Create colored shortcodes for option deconstruct.
 	 *
 	 * @access  private
 	 * @return  string
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _colorfull_shortcuts($atts, $content, &$token = [], $max_level = 0, &$err_msg = '') {
 		$new_content = $content;
 		foreach ($token as $index => $tok) {
-			self::_write_log(sprintf("[%d]--COLORFULL-SC->IN-CONTENT.='%s'", $index, $new_content));
 			$to_evaluate = mb_substr($new_content, $tok->getAStart(), $tok->getAEnd() - $tok->getAStart() + 1);
 			$eval = self::_colorfull_shortcut($to_evaluate, $tok->getName(), $tok->getLevel(), $max_level);
 			$heading_content = mb_substr($new_content, 0, $tok->getAStart());
 			$ending_content = mb_substr($new_content, $tok->getAEnd() + 1, null);
 			$new_content = $heading_content . $eval . $ending_content;
 			$length_difference = mb_strlen($eval) - mb_strlen($to_evaluate);
-			self::_write_log(sprintf("[%d |S=%3d E=%3d] EVALUATE-SHORTCODE: %s => '%s'", $index, $tok->getAStart(), $tok->getAEnd(), $tok->getName(), $eval));
-			self::_write_log(sprintf("[%d]                TO-EVALUATE='%s'", $index, $to_evaluate));
-			self::_write_log(sprintf("[%d |S=%3d E=%3d]   HEADING....='%s'", $index, $tok->getAStart(), $tok->getAEnd(), $heading_content));
-			self::_write_log(sprintf("[%d |S=%3d E=%3d]    ENDING....='%s'", $index, $tok->getAStart(), $tok->getAEnd(), $ending_content));
-			self::_write_log(sprintf("[%d |LD=%3d] ****   CONTENT....='%s'", $index, $length_difference, $new_content));
 			//----------
 			// Correct positions.
 			$token_length = count($token);
@@ -563,14 +552,14 @@ class Recursive_Shortcode_Parser {
 			}
 		}
 		return sprintf("<span style=\"color:white; background-color:black;\">%s</span>", $new_content);
-	}
+	}  // function _colorfull_shortcuts
 
 	/**
-	 * Parse strings with shortcodes.
+	 * Evaluate all shortcodes.
 	 *
 	 * @access  private
 	 * @return  string
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _evaluate_shortcuts($atts, $content, &$token = [], &$err_msg = '') {
 		$new_content = $content;
@@ -602,21 +591,21 @@ class Recursive_Shortcode_Parser {
 
 		}
 		return $new_content;
-	}
+	}  // function _evaluate_shortcuts
 
 	/**
 	 * Parse strings with shortcodes.
 	 *
 	 * @access  private
 	 * @return  string
-	 * @since   1.0.0
+	 * @since   1.0.2
 	 */
 	private static function _replace_smart_quotes($content) {
 		$content = str_replace("’", "'", $content);
 		$content = str_replace(["“", "”"], '"', $content);
 		$content = str_replace(["&#8220;", "&#8243;"], '"', $content);
 		return $content;
-	}
+	}  // function _replace_smart_quotes
 
 	/**
 	 * Parse strings with shortcodes.
@@ -641,7 +630,7 @@ class Recursive_Shortcode_Parser {
 		// Check syntax for tags.
 		//
 		$token_pattern = '/(' . $atts['open'] . '|' . $atts['close'] . ')/';
-		$matches_all = NULL;
+		$matches_all = null;
 		if (preg_match_all($token_pattern, $content, $matches_all, PREG_OFFSET_CAPTURE)) {
 			self::_write_log('CONTENT=' . $content);
 			#self::_write_log($matches);
